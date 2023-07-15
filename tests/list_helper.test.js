@@ -1,16 +1,18 @@
 const listHelper = require('../utils/list_helper');
 
 const emptyList = [];
+
 const listWithOneBlog = [
   {
-    _id: '5a422bc61b54a676234d17fc',
-    title: 'Type wars',
-    author: 'Robert C. Martin',
-    url: 'http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html',
-    likes: 2,
+    _id: '5a422a851b54a676234d17f7',
+    title: 'React patterns',
+    author: 'Michael Chan',
+    url: 'https://reactpatterns.com/',
+    likes: 7,
     __v: 0,
   },
 ];
+
 const blogs = [
   {
     _id: '5a422a851b54a676234d17f7',
@@ -75,7 +77,7 @@ describe('total likes', () => {
 
   test('when list has only one blog equals likes of that', () => {
     const result = listHelper.totalLikes(listWithOneBlog);
-    expect(result).toBe(2);
+    expect(result).toBe(7);
   });
 
   test('of a bigger list is calculated right', () => {
@@ -98,5 +100,23 @@ describe('favorite blog', () => {
   test('of finding the favorite blog from a bigger list', () => {
     const result = listHelper.favoriteBlog(blogs);
     expect(result.likes).toEqual(12);
-  })
+  });
+});
+
+describe('most blogs', () => {
+  test('of empty list returns null', () => {
+    const result = listHelper.mostBlogs(emptyList);
+    expect(result).toBe(null);
+  });
+
+  test('of author equals if there is one blog in the list', () => {
+    const result = listHelper.mostBlogs(listWithOneBlog);
+    expect(result.author).toBe('Michael Chan');
+  });
+
+  test('of finding the author with most blogs from a bigger list', () => {
+    const result = listHelper.mostBlogs(blogs);
+    console.log(result);
+    expect(result.author).toBe('Robert C. Martin');
+  });
 });
