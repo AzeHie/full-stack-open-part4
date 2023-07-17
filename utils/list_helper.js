@@ -29,7 +29,8 @@ const mostBlogs = (blogs) => {
 
   const blogsByAuthor = _.countBy(blogs, 'author'); // returns objects with key-value pairs
 
-  const result = Object.entries(blogsByAuthor).reduce( // converts blogsByAuthor to an array, then calls reduce on it
+  const result = Object.entries(blogsByAuthor).reduce(
+    // converts blogsByAuthor to an array, then calls reduce on it
     (authorWithMost, [author, blogCount]) => {
       if (blogCount > authorWithMost.blogCount) {
         return { author, blogCount };
@@ -42,9 +43,43 @@ const mostBlogs = (blogs) => {
   return result;
 };
 
+const mostLikes = (blogs) => {
+  if (blogs.length < 1) {
+    return null;
+  }
+
+  const blogsByAuthor = _.groupBy(blogs, 'author');
+
+  const authorTotalLikes = Object.entries(blogsByAuthor).map(
+    ([author, blogs]) => {
+      return {
+        author,
+        totalLikes: blogs.reduce((sum, blog) => {
+          return sum + blog.likes;
+        }, 0),
+      };
+    }
+  );
+
+  console.log(authorTotalLikes);
+
+  const authorWithMostLikes = authorTotalLikes.reduce(
+    (authorWithMost, { author, totalLikes }) => {
+      if (authorWithMost.totalLikes < totalLikes) {
+        return { author, totalLikes };
+      }
+      return authorWithMost;
+    },
+    { author: '', totalLikes: 0 }
+  );
+
+  return authorWithMostLikes;
+};
+
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
   mostBlogs,
+  mostLikes,
 };

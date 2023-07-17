@@ -116,7 +116,25 @@ describe('most blogs', () => {
 
   test('of finding the author with most blogs from a bigger list', () => {
     const result = listHelper.mostBlogs(blogs);
-    console.log(result);
     expect(result.author).toBe('Robert C. Martin');
+    expect(result.blogCount).toEqual(3);
+  });
+});
+
+describe('most likes', () => {
+  test('of empty list returns null', () => {
+    const result = listHelper.mostLikes(emptyList);
+    expect(result).toBe(null);
+  });
+
+  test('of author equals if there is one blog in the list', () => {
+    const result = listHelper.mostLikes(listWithOneBlog);
+    expect(result.author).toBe('Michael Chan');
+  });
+
+  test('of finding out the author with most likes from a bigger list', () => {
+    const result = listHelper.mostLikes(blogs);
+    expect(result.author).toBe('Edsger W. Dijkstra');
+    expect(result.totalLikes).toEqual(17);
   });
 });
