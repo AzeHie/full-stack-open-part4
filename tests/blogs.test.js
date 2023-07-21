@@ -84,6 +84,36 @@ describe('post requests', () => {
   });
 });
 
+describe('delete requests', () => {
+  test.only('single blog is deleted successfully', async () => {
+    const newBlog = {
+      title: 'Testing delete',
+      author: 'Delete testing',
+      url: 'someurlwhichisatleast10',
+      likes: 6
+    };
+
+    // save new blog
+    const saveResult = await api.post('/api/blogs').send(newBlog);
+
+    let blogs;
+
+    // get blogs before delete
+    blogs = await api.get('/api/blogs');
+    const blogsBefore = blogs.body.length;
+
+    // delete blog
+    const response = await api.delete(`/api/blogs/${saveResult.body.id}`);
+
+    // get blogs after delete
+    blogs = await api.get('/api/blogs');
+    const blogsAfter = blogs.body.length;
+
+    expect(response.status).toBe(200);
+    expect(blogsAfter).toBeLessThan(blogsBefore);
+  });
+});
+
 afterAll(async () => {
   await mongoose.connection.close();
 });
