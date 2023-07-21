@@ -7,7 +7,7 @@ const api = supertest(app);
 describe('get requests', () => {
   test('blogs are returned as json', async () => {
     const response = await api.get('/api/blogs');
-    // expect(response.body).toHaveLength(2); 
+    // expect(response.body).toHaveLength(2);
     // REMOVED PREVIOUS LINE, BECAUSE THERE IS A LOT OF BLOGS ADDED IN THE LATER TESTS
     expect(response.status).toBe(200);
     expect(response.type).toMatch(/application\/json/);
@@ -85,12 +85,12 @@ describe('post requests', () => {
 });
 
 describe('delete requests', () => {
-  test.only('single blog is deleted successfully', async () => {
+  test('single blog is deleted successfully', async () => {
     const newBlog = {
       title: 'Testing delete',
       author: 'Delete testing',
       url: 'someurlwhichisatleast10',
-      likes: 6
+      likes: 6,
     };
 
     // save new blog
@@ -116,4 +116,24 @@ describe('delete requests', () => {
 
 afterAll(async () => {
   await mongoose.connection.close();
+});
+
+describe('put requests', () => {
+  test.only('likes updated successfully', async () => {
+    const blogs = await api.get('/api/blogs');
+    const blog = blogs.body[0];
+
+    const updatedBlog = {
+      title: blog.title,
+      author: blog.author,
+      url: blog.url,
+      likes: blog.likes + 1,
+    };
+
+    const response = await api.put(`/api/blogs/${blog.id}`).send(updatedBlog);
+
+    expect(response.body.id).toBe(blog.id);
+    expect(response.body.likes).toBe(blog.likes + 1);
+    expect(response.status).toBe(200);
+  });
 });

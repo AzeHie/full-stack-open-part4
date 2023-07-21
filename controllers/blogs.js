@@ -28,11 +28,22 @@ blogsRouter.post('/', async (req, res, next) => {
 
 blogsRouter.delete('/:id', async (req, res, next) => {
   const id = req.params.id;
-  console.log(id);
 
   try {
     await Blog.findByIdAndDelete(id);
     res.status(200).json({ message: 'Blog deleted'})
+  } catch (err) {
+    next(err);
+  }
+});
+
+blogsRouter.put('/:id', async (req, res, next) => {
+  const id = req.params.id;
+  const blog = req.body;
+
+  try {
+    const response = await Blog.findByIdAndUpdate(id, blog, { new: true });
+    res.status(200).json(response);
   } catch (err) {
     next(err);
   }
