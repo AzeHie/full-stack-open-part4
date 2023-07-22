@@ -115,7 +115,7 @@ describe('delete requests', () => {
 });
 
 describe('put requests', () => {
-  test.only('likes updated successfully', async () => {
+  test('likes updated successfully', async () => {
     const blogs = await api.get('/api/blogs');
     const blog = blogs.body[0];
 
