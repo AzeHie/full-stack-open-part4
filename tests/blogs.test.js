@@ -114,10 +114,6 @@ describe('delete requests', () => {
   });
 });
 
-afterAll(async () => {
-  await mongoose.connection.close();
-});
-
 describe('put requests', () => {
   test.only('likes updated successfully', async () => {
     const blogs = await api.get('/api/blogs');
@@ -136,4 +132,8 @@ describe('put requests', () => {
     expect(response.body.likes).toBe(blog.likes + 1);
     expect(response.status).toBe(200);
   });
+});
+
+afterAll(async () => {
+  await mongoose.connection.close();
 });
