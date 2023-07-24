@@ -51,11 +51,23 @@ blogsRouter.post('/', async (req, res, next) => {
 });
 
 blogsRouter.delete('/:id', async (req, res, next) => {
-  const id = req.params.id;
+  const blogId = req.params.id;
 
   try {
-    await Blog.findByIdAndDelete(id);
-    res.status(200).json({ message: 'Blog deleted' });
+    const decodedToken = jwt.verify(req.token, config.SECRET);
+    if (!decodedToken.id) {
+      return res.status(401).json({ error: 'token invalid' });
+    }
+
+    const userId = decodedToken.id;
+    const blog = await Blog.findById(blogId);
+
+    if (blog.user.toString() === userId) {
+      await Blog.findByIdAndDelete(blogId);
+      res.status(200).json({ message: 'Blog deleted' });
+    } else {
+      res.status(401).json({ message: "Blog deletion failed, you can only delete your own blogs!"})
+    }
   } catch (err) {
     next(err);
   }
