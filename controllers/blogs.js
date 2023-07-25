@@ -1,5 +1,6 @@
 const blogsRouter = require('express').Router();
 const Blog = require('../models/blog');
+const { userExtractor } = require('../utils/middleware');
 
 blogsRouter.get('/', async (req, res, next) => {
   try {
@@ -14,7 +15,11 @@ blogsRouter.get('/', async (req, res, next) => {
   }
 });
 
-blogsRouter.post('/', async (req, res, next) => {
+blogsRouter.post('/', userExtractor, async (req, res, next) => {
+  if (!req.body.likes) {
+    req.body.likes = 0;
+  }
+
   const { title, author, url, likes } = req.body;
   const user = req.user;
 
@@ -30,10 +35,6 @@ blogsRouter.post('/', async (req, res, next) => {
     user: user.id,
   });
 
-  if (!req.body.likes) {
-    req.body.likes = 0;
-  }
-
   try {
     const savedBlog = await blog.save();
     user.blogs = user.blogs.concat(savedBlog._id);
@@ -45,7 +46,7 @@ blogsRouter.post('/', async (req, res, next) => {
   }
 });
 
-blogsRouter.delete('/:id', async (req, res, next) => {
+blogsRouter.delete('/:id', userExtractor, async (req, res, next) => {
   const blogId = req.params.id;
   const user = req.user;
 
@@ -67,7 +68,7 @@ blogsRouter.delete('/:id', async (req, res, next) => {
   }
 });
 
-blogsRouter.put('/:id', async (req, res, next) => {
+blogsRouter.put('/:id', userExtractor, async (req, res, next) => {
   const id = req.params.id;
   const blog = req.body;
 

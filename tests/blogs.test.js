@@ -1,8 +1,25 @@
 const mongoose = require('mongoose');
 const supertest = require('supertest');
+const bcrypt = require('bcryptjs');
 const app = require('../app');
 
+const User = require('../models/user');
+
 const api = supertest(app);
+
+let token;
+
+beforeAll(async () => {
+  // following user is created to the database for the tests
+  const username = 'root';
+  const password = 'salasana';
+
+  const userDetails = await api
+    .post('/api/login')
+    .send({ username: username, password: password });
+
+  token = userDetails.body.token;
+});
 
 describe('get requests', () => {
   test('blogs are returned as json', async () => {
@@ -24,6 +41,18 @@ describe('get requests', () => {
 });
 
 describe('post requests', () => {
+  test('returns 401 if token is missing', async () => {
+    const newBlog = {
+      title: 'test blog titleee',
+      author: 'test authorrr',
+      url: 'testurlhastobeatleast10characters',
+      likes: 2,
+    };
+    const response = await api.post('/api/blogs').send(newBlog);
+
+    expect(response.status).toBe(401);
+  });
+
   test('new blog is added to the database', async () => {
     let blogs;
     blogs = await api.get('/api/blogs');
@@ -35,7 +64,7 @@ describe('post requests', () => {
       url: 'testurlhastobeatleast10characters',
       likes: 2,
     };
-    const response = await api.post('/api/blogs').send(newBlog);
+    const response = await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(newBlog);
 
     blogs = await api.get('/api/blogs');
     const blogsAtEnd = blogs.body.length;
@@ -51,7 +80,7 @@ describe('post requests', () => {
       url: 'Anothertesturlhastobeatleast10',
       likes: '',
     };
-    const response = await api.post('/api/blogs').send(newBlog);
+    const response = await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(newBlog);
     const blogs = await api.get('/api/blogs');
     const lastBlog = blogs.body[blogs.body.length - 1];
 
@@ -67,7 +96,7 @@ describe('post requests', () => {
       likes: 3,
     };
 
-    const response = await api.post('/api/blogs').send(newBlog);
+    const response = await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(newBlog);
     expect(response.status).toBe(400);
   });
 
@@ -79,7 +108,7 @@ describe('post requests', () => {
       likes: 3,
     };
 
-    const response = await api.post('/api/blogs').send(newBlog);
+    const response = await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(newBlog);
     expect(response.status).toBe(400);
   });
 });
@@ -94,7 +123,7 @@ describe('delete requests', () => {
     };
 
     // save new blog
-    const saveResult = await api.post('/api/blogs').send(newBlog);
+    const saveResult = await api.post('/api/blogs').set('Authorization', `Bearer ${token}`).send(newBlog);
 
     let blogs;
 
@@ -103,7 +132,7 @@ describe('delete requests', () => {
     const blogsBefore = blogs.body.length;
 
     // delete blog
-    const response = await api.delete(`/api/blogs/${saveResult.body.id}`);
+    const response = await api.delete(`/api/blogs/${saveResult.body.id}`).set('Authorization', `Bearer ${token}`);
 
     // get blogs after delete
     blogs = await api.get('/api/blogs');
@@ -126,7 +155,7 @@ describe('put requests', () => {
       likes: blog.likes + 1,
     };
 
-    const response = await api.put(`/api/blogs/${blog.id}`).send(updatedBlog);
+    const response = await api.put(`/api/blogs/${blog.id}`).set('Authorization', `Bearer ${token}`).send(updatedBlog);
 
     expect(response.body.id).toBe(blog.id);
     expect(response.body.likes).toBe(blog.likes + 1);
